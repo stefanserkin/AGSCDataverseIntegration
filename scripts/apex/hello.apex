@@ -5,6 +5,11 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
-string tempvar = 'Enter_your_name_here';
-System.debug('Hello World!');
-System.debug('My name is ' + tempvar);
+Dataverse_Contact_Request__c dcr = new Dataverse_Contact_Request__c();
+dcr.Player_First_Name__c = 'Serk';
+dcr.Player_Last_Name__c = 'theJerk';
+dcr.Parent_Guardian_First_Name__c = 'Parental';
+dcr.Parent_Guardian_Last_Name__c = 'theJerk';
+DataverseContactService serv = new DataverseContactService(dcr);
+Id contactId = serv.getContactId();
+System.debug(':::: contactId --> ' + contactId);
