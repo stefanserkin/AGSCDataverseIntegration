@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Eligible_for_Training_Pathway__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indicates that the player is eligible for the upcoming Training Pathway program. Updates the Team Eligibility field on the associated player&apos;s contact.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Indicates that the player is eligible for the upcoming Training Pathway program. Updates the Team Eligibility field on the associated player&apos;s contact.</inlineHelpText>
+    <label>Eligible for Training Pathway</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

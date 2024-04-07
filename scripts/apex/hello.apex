@@ -10,6 +10,5 @@ dcr.Player_First_Name__c = 'Serk';
 dcr.Player_Last_Name__c = 'theJerk';
 dcr.Parent_Guardian_First_Name__c = 'Parental';
 dcr.Parent_Guardian_Last_Name__c = 'theJerk';
-DataverseContactService serv = new DataverseContactService(dcr);
-Id contactId = serv.getContactId();
-System.debug(':::: contactId --> ' + contactId);
+DataverseContactService serv = new DataverseContactService(new List<Dataverse_Contact_Request__c>{dcr});
+serv.upsertContactsFromRequests();

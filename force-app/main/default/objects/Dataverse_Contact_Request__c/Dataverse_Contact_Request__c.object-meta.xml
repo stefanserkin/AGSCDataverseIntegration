@@ -150,7 +150,7 @@
     <enableHistory>false</enableHistory>
     <enableLicensing>false</enableLicensing>
     <enableReports>true</enableReports>
-    <enableSearch>false</enableSearch>
+    <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
@@ -161,7 +161,14 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Dataverse Contact Requests</pluralLabel>
-    <searchLayouts></searchLayouts>
+    <searchLayouts>
+        <searchResultsAdditionalFields>Contact__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Player_Nickname__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Program_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Tryout_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Parent_Guardian_First_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Parent_Guardian_Last_Name__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

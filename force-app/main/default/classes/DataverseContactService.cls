@@ -6,56 +6,78 @@
  *****************************************************/
 public with sharing class DataverseContactService {
 
-    private Dataverse_Contact_Request__c request;
-    private Id contactId;
+    private List<Dataverse_Contact_Request__c> lstRequests;
+    private List<Dataverse_Contact_Request__c> lstRequestsForInsert;
+    private Map<Id, Id> mapAccountIds;
 
     /**
-     * @description Constructor requires a Dataverse_Contact_Request__c record with
-     *  at least First Name, Last Name and Email
-     * @param Dataverse_Contact_Request__c
+     * @description Constructor takes a list of requests to process
+     * @param Dataverse_Contact_Request__c[]
      */
-    public DataverseContactService(Dataverse_Contact_Request__c request) {
-        this.request = request;
+    public DataverseContactService(List<Dataverse_Contact_Request__c> requests) {
+        this.lstRequests = requests;
     }
 
     /**
-     * @description Get contact id or create a new family for the request
-     * @return Id of the player contact
+     * @description Upsert contacts
      */
-    public Id getContactId() {
-        if (this.contactId == null) {
-            Id ctId = searchMatchingContact(request);
-            if (ctId != null) {
-                this.contactId = ctId;
-            } else {
-                this.contactId = createFamilyFromRequest(request);
+    public void upsertContactsFromRequests() {
+        lstRequestsForInsert = filterToNewContacts();
+
+        if (!lstRequestsForInsert.isEmpty()) {
+            insertParentContacts();
+            insertPlayerContacts();
+        }
+    }
+
+    private void insertParentContacts() {
+        List<Contact> lstParentContacts = new List<Contact>();
+        for (Dataverse_Contact_Request__c dcr : lstRequestsForInsert) {
+            Contact parentContact = new Contact();
+            parentContact.FirstName = dcr.Parent_Guardian_First_Name__c;
+            parentContact.LastName = dcr.Parent_Guardian_Last_Name__c;
+            parentContact.Legacy_Id__c = dcr.Player_Contact_ID__c;
+            lstParentContacts.add(parentContact);
+        }
+        insert lstParentContacts;
+
+        List<Account> lstAccounts = [
+            SELECT Id, Legacy_Id__c
+              FROM Account
+             WHERE Id IN (SELECT AccountId FROM Contact WHERE Id IN :lstParentContacts)
+              WITH USER_MODE
+        ];
+
+        mapAccountIds = new Map<Id, Id>();
+        for (Account acc : lstAccounts) {
+            mapAccountIds.put(acc.Legacy_Id__c, acc.Id);
+        }
+    }
+
+    private void insertPlayerContacts() {
+        List<Contact> lstPlayerContacts = new List<Contact>();
+        for (Dataverse_Contact_Request__c dcr : lstRequestsForInsert) {
+            Contact playerContact = new Contact();
+            playerContact.AccountId = mapAccountIds.get(dcr.Id);
+            playerContact.FirstName = dcr.Player_First_Name__c;
+            playerContact.LastName = dcr.Player_Last_Name__c;
+            playerContact.Legacy_Id__c = dcr.Player_Contact_ID__c;
+            lstPlayerContacts.add(playerContact);
+        }
+        insert lstPlayerContacts;
+    }
+
+    /**
+     * @description
+     */
+    private List<Dataverse_Contact_Request__c> filterToNewContacts() {
+        List<Dataverse_Contact_Request__c> results = new List<Dataverse_Contact_Request__c>();
+        for (Dataverse_Contact_Request__c dcr : lstRequests) {
+            if (dcr.Contact__c == null) {
+                results.add(dcr);
             }
         }
-        return this.contactId;
-    }
-
-    /**
-     * TODO - Bulkify this nonsense
-     * @description Create new player and parent contact
-     * @return Id of the new player contact record
-     */
-    public Id createFamilyFromRequest(Dataverse_Contact_Request__c dcr) {
-        Contact parentContact = new Contact();
-        parentContact.FirstName = request.Parent_Guardian_First_Name__c;
-        parentContact.LastName = request.Parent_Guardian_Last_Name__c;
-        insert parentContact;
-
-        parentContact = [SELECT Id, AccountId FROM Contact WHERE Id = :parentContact.Id WITH USER_MODE LIMIT 1];
-
-        // Create player contact
-        Contact playerContact = new Contact();
-        playerContact.AccountId = parentContact.AccountId;
-        playerContact.FirstName = request.Player_First_Name__c;
-        playerContact.LastName = request.Player_Last_Name__c;
-        insert playerContact;
-
-        contactId = playerContact.Id;
-        return contactId;
+        return results;
     }
     
     /**
