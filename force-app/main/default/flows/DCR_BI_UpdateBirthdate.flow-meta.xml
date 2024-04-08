@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <assignments>
+        <name>Update_Birthdate</name>
+        <label>Update Birthdate</label>
+        <locationX>176</locationX>
+        <locationY>287</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Birthdate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dateFmlBirthdate</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Record-triggered, before insert for the Dataverse Contact Request object. If the Birth Year and year of the Birthdate do not match, update the Birthdate with the Birth Year.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>dateFmlBirthdate</name>
+        <dataType>Date</dataType>
+        <expression>DATE(
+  VALUE( {!$Record.Birth_Year__c} ),
+  MONTH( {!$Record.Birthdate__c} ),
+  DAY( {!$Record.Birthdate__c} )
+)</expression>
+    </formulas>
+    <interviewLabel>DCR BI UpdateBirthdateWithBirthYear {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>DCR BI UpdateBirthdate</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Birthdate</targetReference>
+        </connector>
+        <filterFormula>AND(
+  !ISBLANK( {!$Record.Birthdate__c} ),
+  !ISBLANK( {!$Record.Birth_Year__c} ),
+  TEXT( YEAR( {!$Record.Birthdate__c} ) ) &lt;&gt; {!$Record.Birth_Year__c}
+)</filterFormula>
+        <object>Dataverse_Contact_Request__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>
